@@ -114,6 +114,9 @@ const readDir = async function* (path: string) {
 
 export const getAllTools = async function* (rootDir: string = ROOT_DIR) {
   for await (const { name } of readDir(TOOLS_DIR(rootDir))) {
+    if (!name) {
+      continue
+    }
     yield await resolveTool(name, rootDir)
   }
 }

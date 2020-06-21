@@ -2,6 +2,9 @@ import { loadTool, Tool, CLIError, ErrorNames } from './util.ts'
 
 const mainTool: Tool = {
   exec: async (tool, ...args) => {
+    if (!tool) {
+      throw new CLIError(ErrorNames.InvalidTool)
+    }
     const { getHelp, exec } = await loadTool(tool)
 
     // If second arg is help, run help
