@@ -54,4 +54,4 @@ export const GITHUB_INFO = NETWORK_MODE !== NetworkMode.GitHub ? null : getGithu
 
 export const ROOT_DIR = `${ RUN_MODE === RunMode.Network ? url.origin : '' }${ url.pathname }`
 
-console.log(url)
+// console.log(url)

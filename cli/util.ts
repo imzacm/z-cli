@@ -1,4 +1,5 @@
 import { ROOT_DIR, LOG_FULL_ERRORS, RUN_MODE, RunMode, NETWORK_MODE, NetworkMode, GITHUB_INFO } from './config.ts'
+import { makeGithubApiRequest } from './githubApi.ts'
 
 const TOOLS_DIR = (rootDir: string) => `${ rootDir.endsWith('/') ? rootDir.substring(0, rootDir.length - 1) : rootDir }/tools/`
 
@@ -44,22 +45,15 @@ export type ResolvedTool = {
 
 const resolutionCache: { [ key: string ]: ResolvedTool } = {}
 
-let githubApiFilesResponses: any = {}
 const getGithubFiles = async (path: string) => {
   if (NETWORK_MODE !== NetworkMode.GitHub || !GITHUB_INFO) {
     return null
   }
-  if (!githubApiFilesResponses[ path ]) {
-    const start = path.indexOf(GITHUB_INFO.BASE_PATH)
-    const newPath = path.substring(start + GITHUB_INFO.BASE_PATH.length)
-    console.log({ apiUrl: `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }` })
-    const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
-    const response = await request.json()
-    githubApiFilesResponses[ path ] = !Array.isArray(response) ? [ response ] : response
-  }
-  const response: any[] = githubApiFilesResponses[ path ]
-  console.log({ response })
-  return response.map(r => r.name).filter(n => !!n)
+  const start = path.indexOf(GITHUB_INFO.BASE_PATH)
+  const newPath = path.substring(start + GITHUB_INFO.BASE_PATH.length)
+  const response = await makeGithubApiRequest(`${ newPath }?${ GITHUB_INFO.API_QUERY }`)
+  const array = !Array.isArray(response) ? [ response ] : response
+  return array.map(r => r.name).filter(n => !!n)
 }
 
 const isFile = async (path: string) => {
