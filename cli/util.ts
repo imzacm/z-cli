@@ -44,18 +44,28 @@ export type ResolvedTool = {
 
 const resolutionCache: { [ key: string ]: ResolvedTool } = {}
 
-let githubApiFilesResponse: any
+let githubApiFilesResponses: any = {}
 const getGithubFiles = async (path: string) => {
+  // const GITHUB_INFO = {
+  //   API_ROOT: "https://api.github.com/repos/imzacm/z-cli/contents/cli/",
+  //   API_QUERY: 'ref=master',
+  //   USERNAME: "imzacm",
+  //   REPO: "z-cli",
+  //   BRANCH: "master",
+  //   BASE_PATH: "/cli/"
+  // }
   if (NETWORK_MODE !== NetworkMode.GitHub || !GITHUB_INFO) {
     return null
   }
-  if (!githubApiFilesResponse) {
+  if (!githubApiFilesResponses[ path ]) {
     const start = path.indexOf(GITHUB_INFO.BASE_PATH)
-    const newPath = path.substring(start + path.length)
-    console.log(GITHUB_INFO, newPath)
-    const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }`)
-    console.log(await request.text())
+    const newPath = path.substring(start + GITHUB_INFO.BASE_PATH.length)
+    console.log(GITHUB_INFO, newPath, `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
+    const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
+    githubApiFilesResponses[ path ] = await request.json()
   }
+  const response: any[] = githubApiFilesResponses[ path ]
+  return response.map(r => r.name)
 }
 
 const isFile = async (path: string) => {
@@ -108,7 +118,9 @@ const readDir = async function* (path: string) {
     return
   }
   const gitHubFiles = await getGithubFiles(path)
-  if (gitHubFiles) { }
+  if (gitHubFiles) {
+    yield* gitHubFiles
+  }
 }
 
 export const getAllTools = async function* (rootDir: string = ROOT_DIR) {
