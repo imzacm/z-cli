@@ -52,12 +52,13 @@ const getGithubFiles = async (path: string) => {
   if (!githubApiFilesResponses[ path ]) {
     const start = path.indexOf(GITHUB_INFO.BASE_PATH)
     const newPath = path.substring(start + GITHUB_INFO.BASE_PATH.length)
-    // console.log(GITHUB_INFO, newPath, `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
+    console.log({ apiUrl: `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }` })
     const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
     const response = await request.json()
     githubApiFilesResponses[ path ] = !Array.isArray(response) ? [ response ] : response
   }
   const response: any[] = githubApiFilesResponses[ path ]
+  console.log({ response })
   return response.map(r => r.name).filter(n => !!n)
 }
 
