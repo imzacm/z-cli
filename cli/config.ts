@@ -29,7 +29,18 @@ const getNetworkMode = () => {
 
 export const NETWORK_MODE = getNetworkMode()
 
-export const GITHUB_API_ROOT = NETWORK_MODE !== NetworkMode.GitHub ? '' : `https://api.github.com/repos${ url.pathname }`
+const getGithubInfo = () => {
+  const [ , username, repo, branch, ...path ] = url.pathname.split('/')
+  return {
+    API_ROOT: `https://api.github.com/repos${ url.pathname }`,
+    USERNAME: username,
+    REPO: repo,
+    BRANCH: branch,
+    BASE_PATH: `/${ path.join('/') }`
+  }
+}
+
+export const GITHUB_INFO = NETWORK_MODE !== NetworkMode.GitHub ? null : getGithubInfo()
 
 export const ROOT_DIR = `${ RUN_MODE === RunMode.Network ? url.origin : '' }${ url.pathname }`
 

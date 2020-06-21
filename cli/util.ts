@@ -1,4 +1,4 @@
-import { ROOT_DIR, LOG_FULL_ERRORS, RUN_MODE, RunMode, NETWORK_MODE, NetworkMode, GITHUB_API_ROOT } from './config.ts'
+import { ROOT_DIR, LOG_FULL_ERRORS, RUN_MODE, RunMode, NETWORK_MODE, NetworkMode, GITHUB_INFO } from './config.ts'
 
 const TOOLS_DIR = (rootDir: string) => `${ rootDir.endsWith('/') ? rootDir.substring(0, rootDir.length - 1) : rootDir }/tools/`
 
@@ -44,13 +44,15 @@ export type ResolvedTool = {
 
 const resolutionCache: { [ key: string ]: ResolvedTool } = {}
 
+let githubApiFilesResponse: any
 const getGithubFiles = async (path: string) => {
   if (NETWORK_MODE !== NetworkMode.GitHub) {
     return null
   }
-  console.log('Is github')
-  console.log(GITHUB_API_ROOT, path)
-  const request = await fetch(GITHUB_API_ROOT)
+  if (!githubApiFilesResponse) {
+    console.log(GITHUB_INFO, path)
+    // const request = await fetch(GITHUB_API_ROOT)
+  }
 }
 
 const isFile = async (path: string) => {
@@ -105,7 +107,7 @@ const readDir = async function* (path: string) {
   const gitHubFiles = await getGithubFiles(path)
   if (gitHubFiles) { }
   const request = await fetch(path)
-  console.log(path, request.text())
+  console.log(path, await request.text())
   return request.ok
 }
 
