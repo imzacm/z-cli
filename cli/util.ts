@@ -102,6 +102,8 @@ const readDir = async function* (path: string) {
     yield* Deno.readDir(path)
     return
   }
+  const gitHubFiles = await getGithubFiles(path)
+  if (gitHubFiles) { }
   const request = await fetch(path)
   console.log(path, request.text())
   return request.ok
