@@ -52,7 +52,7 @@ const getGithubFiles = async (path: string) => {
   if (!githubApiFilesResponses[ path ]) {
     const start = path.indexOf(GITHUB_INFO.BASE_PATH)
     const newPath = path.substring(start + GITHUB_INFO.BASE_PATH.length)
-    console.log(GITHUB_INFO, newPath, `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
+    // console.log(GITHUB_INFO, newPath, `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
     const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
     const response = await request.json()
     githubApiFilesResponses[ path ] = !Array.isArray(response) ? [ response ] : response
@@ -72,6 +72,7 @@ const isFile = async (path: string) => {
     }
   }
   const githubFiles = await getGithubFiles(path)
+  console.log({ path, githubFiles })
   return (githubFiles || []).length > 0
 }
 
