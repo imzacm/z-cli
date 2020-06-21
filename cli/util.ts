@@ -67,7 +67,7 @@ const getGithubFiles = async (path: string) => {
   const response: any[] = githubApiFilesResponses[ path ]
   return response.map(r => r.name)
 }
-
+//https://api.github.com/repos/imzacm/z-cli/contents/cli/tools/?ref=master
 const isFile = async (path: string) => {
   if (RUN_MODE === RunMode.Local) {
     try {

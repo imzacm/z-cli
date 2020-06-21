@@ -32,7 +32,7 @@ export const NETWORK_MODE = getNetworkMode()
 const getGithubInfo = () => {
   const [ , username, repo, branch, ...path ] = url.pathname.split('/')
   return {
-    API_ROOT: `https://api.github.com/repos/${ username }/${ repo }/contents/`,
+    API_ROOT: `https://api.github.com/repos/${ username }/${ repo }/contents/${ path.join('/') }`,
     API_QUERY: `ref=${ branch }`,
     USERNAME: username,
     REPO: repo,
