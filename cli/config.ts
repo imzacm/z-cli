@@ -19,6 +19,7 @@ const getNetworkMode = () => {
   if (RUN_MODE === RunMode.Local) {
     return NetworkMode.None
   }
+  // return NetworkMode.GitHub
 
   if (url.host === 'raw.githubusercontent.com') {
     return NetworkMode.GitHub
@@ -30,6 +31,14 @@ const getNetworkMode = () => {
 export const NETWORK_MODE = getNetworkMode()
 
 const getGithubInfo = () => {
+  // return {
+  //   API_ROOT: "https://api.github.com/repos/imzacm/z-cli/contents/cli/",
+  //   API_QUERY: "ref=master",
+  //   USERNAME: "imzacm",
+  //   REPO: "z-cli",
+  //   BRANCH: "master",
+  //   BASE_PATH: "/cli/"
+  // }
   const [ , username, repo, branch, ...path ] = url.pathname.split('/')
   return {
     API_ROOT: `https://api.github.com/repos/${ username }/${ repo }/contents/${ path.join('/') }`,

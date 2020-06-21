@@ -46,14 +46,6 @@ const resolutionCache: { [ key: string ]: ResolvedTool } = {}
 
 let githubApiFilesResponses: any = {}
 const getGithubFiles = async (path: string) => {
-  // const GITHUB_INFO = {
-  //   API_ROOT: "https://api.github.com/repos/imzacm/z-cli/contents/cli/",
-  //   API_QUERY: 'ref=master',
-  //   USERNAME: "imzacm",
-  //   REPO: "z-cli",
-  //   BRANCH: "master",
-  //   BASE_PATH: "/cli/"
-  // }
   if (NETWORK_MODE !== NetworkMode.GitHub || !GITHUB_INFO) {
     return null
   }
@@ -62,12 +54,13 @@ const getGithubFiles = async (path: string) => {
     const newPath = path.substring(start + GITHUB_INFO.BASE_PATH.length)
     console.log(GITHUB_INFO, newPath, `${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
     const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }?${ GITHUB_INFO.API_QUERY }`)
-    githubApiFilesResponses[ path ] = await request.json()
+    const response = await request.json()
+    githubApiFilesResponses[ path ] = !Array.isArray(response) ? [ response ] : response
   }
   const response: any[] = githubApiFilesResponses[ path ]
-  return response.map(r => r.name)
+  return response.map(r => r.name).filter(n => !!n)
 }
-//https://api.github.com/repos/imzacm/z-cli/contents/cli/tools/?ref=master
+
 const isFile = async (path: string) => {
   if (RUN_MODE === RunMode.Local) {
     try {
@@ -78,8 +71,8 @@ const isFile = async (path: string) => {
       return false
     }
   }
-  const request = await fetch(path)
-  return request.ok
+  const githubFiles = await getGithubFiles(path)
+  return (githubFiles || []).length > 0
 }
 
 export const resolveTool = async (name: string, rootDir: string) => {
