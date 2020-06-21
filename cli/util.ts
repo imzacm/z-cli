@@ -50,8 +50,9 @@ const getGithubFiles = async (path: string) => {
     return null
   }
   if (!githubApiFilesResponse) {
-    const newPath = path.replace(GITHUB_INFO.BASE_PATH, '')
-    console.log(GITHUB_INFO, path)
+    const start = path.indexOf(GITHUB_INFO.BASE_PATH)
+    const newPath = path.substring(start + path.length)
+    console.log(GITHUB_INFO, newPath)
     const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }`)
     console.log(await request.text())
   }
