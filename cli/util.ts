@@ -67,7 +67,7 @@ const isFile = async (path: string) => {
     }
   }
   const githubFiles = await getGithubFiles(path)
-  console.log({ path, githubFiles })
+  // console.log({ path, githubFiles })
   return (githubFiles || []).length > 0
 }
 
