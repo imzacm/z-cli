@@ -1,4 +1,4 @@
-import { ROOT_DIR, LOG_FULL_ERRORS } from './config.ts'
+import { ROOT_DIR, LOG_FULL_ERRORS, RUN_MODE, RunMode } from './config.ts'
 
 const TOOLS_DIR = (rootDir: string) => `${ rootDir.endsWith('/') ? rootDir.substring(0, rootDir.length - 1) : rootDir }/tools/`
 
@@ -44,6 +44,25 @@ export type ResolvedTool = {
 
 const resolutionCache: { [ key: string ]: ResolvedTool } = {}
 
+const getGithubFiles = async (path: string) => {
+  console.log('ISGITHUB')
+  return null
+}
+
+const isFile = async (path: string) => {
+  if (RUN_MODE === RunMode.Local) {
+    try {
+      const stats = await Deno.stat(path)
+      return !stats.isDirectory
+    }
+    catch {
+      return false
+    }
+  }
+  const request = await fetch(path)
+  return request.ok
+}
+
 export const resolveTool = async (name: string, rootDir: string) => {
   const cacheKey = `${ rootDir }${ name }`
   if (resolutionCache[ cacheKey ]) {
@@ -58,17 +77,13 @@ export const resolveTool = async (name: string, rootDir: string) => {
     `${ base }/main.js`,
     `${ base }/main.ts`
   ]
-  for (const result of await Promise.allSettled(possibilities.map(async path => ({ path, stats: await Deno.stat(path) })))) {
-    if (result.status === 'rejected') {
+  for (const path of possibilities) {
+    if (!(await isFile(path))) {
       continue
     }
-    if (result.value.stats.isDirectory) {
-      continue
-    }
-    const path = result.value.path
     const isInDir = path.replace(base, '').split('/').length === 2
     const resolved = {
-      path: result.value.path,
+      path,
       name: isInDir ? name : name.substring(0, name.lastIndexOf('.')),
       isInDir
     } as ResolvedTool
@@ -78,8 +93,18 @@ export const resolveTool = async (name: string, rootDir: string) => {
   throw new CLIError(ErrorNames.InvalidTool)
 }
 
+const readDir = async function* (path: string) {
+  if (RUN_MODE === RunMode.Local) {
+    yield* Deno.readDir(path)
+    return
+  }
+  const request = await fetch(path)
+  console.log(path, request.text())
+  return request.ok
+}
+
 export const getAllTools = async function* (rootDir: string = ROOT_DIR) {
-  for await (const { name } of Deno.readDir(TOOLS_DIR(rootDir))) {
+  for await (const { name } of readDir(TOOLS_DIR(rootDir))) {
     yield await resolveTool(name, rootDir)
   }
 }
