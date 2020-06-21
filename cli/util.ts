@@ -46,12 +46,14 @@ const resolutionCache: { [ key: string ]: ResolvedTool } = {}
 
 let githubApiFilesResponse: any
 const getGithubFiles = async (path: string) => {
-  if (NETWORK_MODE !== NetworkMode.GitHub) {
+  if (NETWORK_MODE !== NetworkMode.GitHub || !GITHUB_INFO) {
     return null
   }
   if (!githubApiFilesResponse) {
+    const newPath = path.replace(GITHUB_INFO.BASE_PATH, '')
     console.log(GITHUB_INFO, path)
-    // const request = await fetch(GITHUB_API_ROOT)
+    const request = await fetch(`${ GITHUB_INFO.API_ROOT }${ newPath }`)
+    console.log(await request.text())
   }
 }
 
@@ -106,9 +108,6 @@ const readDir = async function* (path: string) {
   }
   const gitHubFiles = await getGithubFiles(path)
   if (gitHubFiles) { }
-  const request = await fetch(path)
-  console.log(path, await request.text())
-  return request.ok
 }
 
 export const getAllTools = async function* (rootDir: string = ROOT_DIR) {
